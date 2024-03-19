@@ -1,0 +1,577 @@
+﻿Program.Sub.ScreenSU.Start
+Gui.frmMain..Create(BaseForm)
+Gui.frmMain..Size(1011,712)
+Gui.frmMain..MinX(1016)
+Gui.frmMain..MinY(696)
+Gui.frmMain..Position(0,0)
+Gui.frmMain..BackColor(-2147483633)
+Gui.frmMain..MousePointer(0)
+Gui.frmMain..Event(UnLoad,frmMain_UnLoad)
+Gui.frmMain..Caption("Inventory Aging")
+Gui.frmMain..AlwaysOnTop(False)
+Gui.frmMain..FontName("Tahoma")
+Gui.frmMain..FontSize(8.25)
+Gui.frmMain..ControlBox(True)
+Gui.frmMain..MaxButton(True)
+Gui.frmMain..MinButton(True)
+Gui.frmMain..Moveable(True)
+Gui.frmMain..Sizeable(True)
+Gui.frmMain..ShowInTaskBar(True)
+Gui.frmMain..TitleBar(True)
+Gui.frmMain..BarExportButton(True)
+Gui.frmMain..BarRefreshButton(True)
+Gui.frmMain..BarUndoButtons(True,True,True,True)
+Gui.frmMain.lblStatus.Create(Label,"Loading Data...",False,72,14,0,100,11,True,0,"Arial",8,-2147483633,0,0)
+Gui.frmMain.lblStatus.BorderStyle(0)
+Gui.frmMain.pbStatus.Create(ProgressBar)
+Gui.frmMain.pbStatus.Size(162,17)
+Gui.frmMain.pbStatus.Position(100,26)
+Gui.frmMain.pbStatus.Visible(False)
+Gui.frmMain.picGSSLogo.Create(PictureBox)
+Gui.frmMain.picGSSLogo.Size(275,64)
+Gui.frmMain.picGSSLogo.Position(368,3)
+Gui.frmMain.picGSSLogo.Enabled(True)
+Gui.frmMain.picGSSLogo.Visible(True)
+Gui.frmMain.picGSSLogo.Zorder(0)
+Gui.frmMain.tabTabs.Create(Tab)
+Gui.frmMain.tabTabs.Size(1008,601)
+Gui.frmMain.tabTabs.Position(1,77)
+Gui.frmMain.tabTabs.Enabled(True)
+Gui.frmMain.tabTabs.Visible(True)
+Gui.frmMain.tabTabs.Zorder(0)
+Gui.frmMain.tabTabs.FontName("Tahoma")
+Gui.frmMain.tabTabs.FontSize(8.25)
+Gui.frmMain.tabTabs.Tabs(1)
+Gui.frmMain.tabTabs.SetTab(0)
+Gui.frmMain.tabTabs.Caption("Tab 1")
+Gui.frmMain.GsGCData.Create(GsGridControl)
+Gui.frmMain.GsGCData.Enabled(True)
+Gui.frmMain.GsGCData.Parent("tabTabs",0)
+Gui.frmMain.GsGCData.Visible(True)
+Gui.frmMain.GsGCData.Zorder(0)
+Gui.frmMain.GsGCData.Size(1006,572)
+Gui.frmMain.GsGCData.Position(0,0)
+Gui.frmMain.GsGCData.Dock(5)
+Program.Sub.ScreenSU.End
+
+#Region "Generalized_Template_Functionality"
+
+Program.Sub.Preflight.Start
+	V.Global.bLoadData.Declare
+	V.Global.iARCID.Declare
+	V.Global.sGridViews.Declare
+	v.Global.sSQL.Declare
+Program.Sub.Preflight.End
+
+Program.Sub.Catching.Start
+	V.Local.sError.Declare
+	F.Intrinsic.String.Build("Project: {0}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}","GCG_5792_BOL_LABELS.g2u",V.Ambient.NewLine,v.Args.sub,V.Args.errorno,V.args.errordesc,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.End
+Program.Sub.Catching.End
+
+Program.Sub.SetApplicationIcon.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+		V.Local.sArt.Declare
+		V.Local.sForm.Declare
+		V.Local.sFormName.Declare
+		V.Local.iCnt.Declare
+		V.Local.bIsCollection.Declare
+		
+		'Set Application Icon
+		F.Intrinsic.String.Build("{0}\GSS2.ico",V.Caller.GasDir,V.Local.sArt)
+		
+		F.Intrinsic.String.Split(V.Args.sForms,"*!*",V.Local.sForm)
+		'Set application icon for each form
+		F.Intrinsic.Control.For(V.Local.iCnt,0,V.Local.sForm.UBound,1)
+			V.Local.sFormName.Set(V.Local.sForm(V.Local.iCnt))
+			Gui.[V.Local.sFormName]..Icon(V.Local.sArt)
+		F.Intrinsic.Control.Next(V.Local.iCnt)
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+	F.Intrinsic.Control.EndTry
+Program.Sub.SetApplicationIcon.End
+
+Program.Sub.SetContextMenus.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+		V.Local.iCnt.Declare
+		V.Local.sControls.Declare
+		
+		V.Local.sControlList.Declare
+		V.Local.sFormName.Declare
+		V.Local.sGridControlName.Declare
+		V.Local.sContextMenuName.Declare
+			
+		F.Intrinsic.String.Split(V.Args.sGridControls,"#$#",V.Local.sControls)
+		F.Intrinsic.Control.For(V.Local.iCnt,0,V.Local.sControls.UBound,1)
+			F.Intrinsic.String.Split(V.Local.sControls(V.Local.iCnt),"*!*",V.Local.sControlList)
+			V.Local.sFormName.Set(V.Local.sControlList(0))
+			V.Local.sGridControlName.Set(V.Local.sControlList(1))
+			V.Local.sContextMenuName.Set(V.Local.sControlList(2))
+			Gui.[V.Local.sFormName]..ContextMenuCreate(V.Local.sContextMenuName)
+			Gui.[V.Local.sFormName].[V.Local.sGridControlName].ContextMenuAttach(V.Local.sContextMenuName)
+			F.Intrinsic.Control.CallSub(SetContextMenuItems,"sFormName",V.Local.sFormName,"sContextMenuName",V.Local.sContextMenuName,"sContextMenuItems",V.Args.sContextMenuItems)
+		F.Intrinsic.Control.Next(V.Local.iCnt)
+			
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.Control.CallSub(Catching,"Sub",V.Ambient.CurrentSubroutine,"ErrorNo",V.Ambient.ErrorNumber,"ErrorDesc",V.Ambient.ErrorDescription) 
+	F.Intrinsic.Control.EndTry
+Program.Sub.SetContextMenus.End
+
+Program.Sub.SetContextMenuItems.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+		V.Local.iCnt.Declare
+		V.Local.sContextMenuItems.Declare
+		V.Local.sContextMenuItem.Declare
+		V.Local.sContextMenuItemName.Declare
+		V.Local.sContextMenuCaption.Declare
+		V.Local.sContextMenuEventHandler.Declare
+		
+		F.Intrinsic.String.Split(V.Args.sContextMenuItems,"#$#",V.Local.sContextMenuItems)
+		F.Intrinsic.Control.For(V.Local.iCnt,0,V.Local.sContextMenuItems.UBound,1)
+			F.Intrinsic.String.Split(V.Local.sContextMenuItems(V.Local.iCnt),"*!*",V.Local.sContextMenuItem)
+			V.Local.sContextMenuItemName.Set(V.Local.sContextMenuItem(0))
+			V.Local.sContextMenuCaption.Set(V.Local.sContextMenuItem(1))
+			V.Local.sContextMenuEventHandler.Set(V.Local.sContextMenuItem(2))
+			Gui.[V.Args.sFormName]..ContextMenuAddItem(V.Args.sContextMenuName,V.Local.sContextMenuItemName,0,V.Local.sContextMenuCaption)
+			Gui.[V.Args.sFormName]..ContextMenuSetItemEventHandler(V.Args.sContextMenuName,V.Local.sContextMenuItemName,V.Local.sContextMenuEventHandler)
+		F.Intrinsic.Control.Next(V.Local.iCnt)
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.Control.CallSub(Catching,"Sub",V.Ambient.CurrentSubroutine,"ErrorNo",V.Ambient.ErrorNumber,"ErrorDesc",V.Ambient.ErrorDescription) 
+	F.Intrinsic.Control.EndTry
+Program.Sub.SetContextMenuItems.End
+
+Program.Sub.SetARCID.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+		V.Local.sFile.Declare
+		V.Local.sName.Declare
+		V.Local.sNameSplit.Declare
+		
+		F.Intrinsic.String.Split(V.Caller.ScriptFile,"\",V.Local.sFile)
+		F.Intrinsic.String.Split(V.Local.sFile(V.Local.sFile.UBound),".",V.Local.sName)
+		F.Intrinsic.String.Split(V.Local.sName,"_",V.Local.sNameSplit)
+		V.Global.iARCID.Set(V.Local.sNameSplit(1).Long)
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.Control.CallSub(Catching,"Sub",V.Ambient.CurrentSubroutine,"ErrorNo",V.Ambient.ErrorNumber,"ErrorDesc",V.Ambient.ErrorDescription) 
+	F.Intrinsic.Control.EndTry
+Program.Sub.SetARCID.End
+
+Program.Sub.Serialize.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+		V.Local.sControls.Declare
+		V.Local.sSerialize.Declare
+		V.Local.iCnt.Declare
+		
+		V.Local.sControlList.Declare
+		V.Local.sForm.Declare
+		V.Local.sGridControl.Declare
+		V.Local.sGridView.Declare
+		
+		F.Intrinsic.String.Split(V.Global.sGridViews,"#$#",V.Local.sControls)
+		F.Intrinsic.Control.For(V.Local.iCnt,0,V.Local.sControls.UBound,1)
+			F.Intrinsic.String.Split(V.Local.sControls(V.Local.iCnt),"*!*",V.Local.sControlList)
+			V.Local.sForm.Set(V.Local.sControlList(0))
+			V.Local.sGridControl.Set(V.Local.sControlList(1))
+			V.Local.sGridView.Set(V.Local.sControlList(2))
+			Gui.[V.Local.sForm].[V.Local.sGridControl].Serialize(V.Local.sGridView,V.Local.sSerialize)
+			F.Global.Registry.AddValue(V.Caller.User,V.Caller.CompanyCode,V.Local.sGridView,V.Global.iARCID,1000,False,"Serialize",False,0,-999.0,1/1/1980,12:00:00 AM,V.Local.sSerialize)
+			V.Local.sSerialize.Set("")
+		F.Intrinsic.Control.Next(V.Local.iCnt)
+		
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.Control.CallSub(Catching,"Sub",V.Ambient.CurrentSubroutine,"ErrorNo",V.Ambient.ErrorNumber,"ErrorDesc",V.Ambient.ErrorDescription) 
+	F.Intrinsic.Control.EndTry
+Program.Sub.Serialize.End
+
+Program.Sub.Deserialize.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+		V.Local.sControls.Declare
+		V.Local.sSerialize.Declare
+		V.Local.iCnt.Declare
+		
+		V.Local.sControlList.Declare
+		V.Local.sForm.Declare
+		V.Local.sGridControl.Declare
+		V.Local.sGridView.Declare
+		
+		F.Intrinsic.String.Split(V.Global.sGridViews,"#$#",V.Local.sControls)
+		F.Intrinsic.Control.For(V.Local.iCnt,0,V.Local.sControls.UBound,1)
+			F.Intrinsic.String.Split(V.Local.sControls(V.Local.iCnt),"*!*",V.Local.sControlList)
+			V.Local.sForm.Set(V.Local.sControlList(0))
+			V.Local.sGridControl.Set(V.Local.sControlList(1))
+			V.Local.sGridView.Set(V.Local.sControlList(2))
+			F.Global.Registry.ReadValue(V.Caller.User,V.Caller.CompanyCode,V.Local.sGridView,V.Global.iARCID,1000,6,"",V.Local.sSerialize)
+			F.Intrinsic.Control.If(V.Local.sSerialize.Trim,<>,"")
+				Gui.[V.Local.sForm].[V.Local.sGridControl].Deserialize(V.Local.sSerialize)
+			F.Intrinsic.Control.EndIf
+		F.Intrinsic.Control.Next(V.Local.iCnt)
+		
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.Control.CallSub(Catching,"Sub",V.Ambient.CurrentSubroutine,"ErrorNo",V.Ambient.ErrorNumber,"ErrorDesc",V.Ambient.ErrorDescription) 
+	F.Intrinsic.Control.EndTry
+Program.Sub.Deserialize.End
+
+Program.Sub.ExportGrid.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+		V.Local.bExcel.Declare
+		V.Local.sExt.Declare
+		V.Local.sControl.Declare
+		V.Local.sFileExport.Declare
+		V.Local.bFileLocked.Declare
+		V.Local.sMsg.Declare
+		V.Local.sGridControlList.Declare
+		V.Local.sCurrentControlList.Declare
+		V.Local.sFormName.Declare
+		V.Local.sGridControlName.Declare
+		V.Local.iCnt.Declare
+		
+		F.Automation.MSExcel.CheckPresence(V.Local.bExcel)
+		F.Intrinsic.Control.If(V.Local.bExcel)
+			V.Local.sExt.Set("xlsx")
+		F.Intrinsic.Control.Else
+			V.Local.sExt.Set("csv")
+		F.Intrinsic.Control.EndIf
+		
+		F.Intrinsic.String.Split(V.Args.sGridControls,"#$#",V.Local.sGridControlList)
+		F.Intrinsic.Control.For(V.Local.iCnt,0,V.Local.sGridControlList.UBound,1)
+			F.Intrinsic.String.Split(V.Local.sGridControlList(V.Local.iCnt),"*!*",V.Local.sCurrentControlList)
+			V.Local.sFormName.Set(V.Local.sCurrentControlList(0))
+			V.Local.sGridControlName.Set(V.Local.sCurrentControlList(1))
+			
+			F.Intrinsic.String.Build("{0}\GAB_{1}_{2}_Export.{3}",V.Caller.LocalGssTempDir,V.Global.iARCID,V.Local.sGridControlName,V.Local.sExt,V.Local.sFileExport)
+			F.Intrinsic.File.IsFileLocked(V.Local.sFileExport,V.Local.bFileLocked)
+			F.Intrinsic.Control.If(V.Local.bFileLocked)
+				F.Intrinsic.String.Build("File is already open. Please close and export again.{0}File: {1}",V.Ambient.NewLine,V.Local.sFileExport,V.Local.sMsg)
+				F.Intrinsic.UI.Msgbox(V.Local.sMsg,"File In Use")
+			F.Intrinsic.Control.Else
+				Gui.[V.Local.sFormName].[V.Local.sGridControlName].Export(V.Local.sFileExport,V.Local.sExt)
+				F.Intrinsic.Task.ShellExec(0,"",V.Local.sFileExport,"","",1)
+			F.Intrinsic.Control.EndIf
+		
+		F.Intrinsic.Control.Next(V.Local.iCnt)
+		
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.Control.CallSub(Catching,"Sub",V.Ambient.CurrentSubroutine,"ErrorNo",V.Ambient.ErrorNumber,"ErrorDesc",V.Ambient.ErrorDescription) 
+	F.Intrinsic.Control.EndTry
+Program.Sub.ExportGrid.End
+
+Program.Sub.ResetGrid.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+		
+		V.Local.sSerialize.Declare
+		
+		F.Global.Registry.AddValue(V.Caller.User,V.Caller.CompanyCode,V.Args.sGridViewName,V.Global.iARCID,1000,False,"Serialize",False,0,-999.0,1/1/1980,12:00:00 AM,"")
+		
+		V.Global.bLoadData.Set(False)
+		F.Intrinsic.Control.CallSub(cmdRefresh_Click)
+		
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.Control.CallSub(Catching,"Sub",V.Ambient.CurrentSubroutine,"ErrorNo",V.Ambient.ErrorNumber,"ErrorDesc",V.Ambient.ErrorDescription) 
+	F.Intrinsic.Control.EndTry
+Program.Sub.ResetGrid.End
+
+Program.Sub.LoadData.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+		
+		F.Intrinsic.Control.If(V.DataTable.[V.Args.sDataTableName].Exists)
+			F.Data.DataTable.Close(V.Args.sDataTableName)
+		F.Intrinsic.Control.EndIf
+		
+		V.Global.bLoadData.Set(True)
+		
+		F.Data.DataTable.CreateFromSQL(V.Args.sDataTableName,"con",V.Args.sSQL,True)
+		F.Intrinsic.Control.CallSub(LoadGV,"DT",V.Args.sDataTableName,"GV",V.Args.sGridViewName,"GSGC",V.Args.sGridControlName,"FRM",V.Args.sFormName)
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.Control.CallSub(Catching,"Sub",V.Ambient.CurrentSubroutine,"ErrorNo",V.Ambient.ErrorNumber,"ErrorDesc",V.Ambient.ErrorDescription) 
+	F.Intrinsic.Control.EndTry
+Program.Sub.LoadData.End
+
+Program.Sub.LoadGV.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+		V.Local.iRet.Declare
+		V.Local.iCnt.Declare
+		V.Local.sFieldNames.Declare
+		V.Local.sColumns.Declare
+		V.Local.sColumnName.Declare
+		V.Local.bHold.Declare
+		v.Local.sRet.Declare(String)
+		
+		Gui.[V.Args.FRM].[V.Args.GSGC].AddGridViewFromDataTable(V.Args.GV,V.Args.DT)
+		Gui.[V.Args.FRM].[V.Args.GSGC].SuspendLayout()
+		Gui.[V.Args.FRM].[V.Args.GSGC].SetGridViewProperty(V.Args.GV,"MultiSelect",False)
+		Gui.[V.Args.FRM].[V.Args.GSGC].SetGridViewProperty(V.Args.GV,"OptionBehaviorEditable",False)
+		Gui.[V.Args.FRM].[V.Args.GSGC].SetGridViewProperty(V.Args.GV,"AllowSort",True)
+		Gui.[V.Args.FRM].[V.Args.GSGC].SetGridViewProperty(V.Args.GV,"AllowFilter",True)
+		Gui.[V.Args.FRM].[V.Args.GSGC].SetGridViewProperty(V.Args.GV,"ReadOnly",True)
+		Gui.[V.Args.FRM].[V.Args.GSGC].SetGridViewProperty(V.Args.GV,"OptionsDetailShowDetailTabs",False)
+		Gui.[V.Args.FRM].[V.Args.GSGC].SetGridViewProperty(V.Args.GV,"OptionsViewShowGroupPanel",True)
+		Gui.[V.Args.FRM].[V.Args.GSGC].SetGridViewProperty(V.Args.GV,"OptionsViewColumnAutoWidth",False)
+		Gui.[V.Args.FRM].[V.Args.GSGC].SetGridViewProperty(V.Args.GV,"OptionsFindAlwaysVisible",True)
+		
+		'Loop through columns names by using the V.DataTable.dtName.FieldNames
+		'Adding some special use columns to the beginning of the field names.  Manual fields beginning with ^ are buttons (for me in this project).
+		'F.Intrinsic.String.Concat("^Edit*!*^Delete*!*",V.DataTable.[V.Args.DT].FieldNames,V.Local.sFieldNames)
+		F.Intrinsic.String.Concat("",V.DataTable.[V.Args.DT].FieldNames,V.Local.sFieldNames)
+		F.Intrinsic.String.Split(V.Local.sFieldNames,"*!*",V.Local.sColumns)
+		F.Intrinsic.Control.For(V.Local.iCnt,0,V.Local.sColumns.UBound,1)
+		
+			F.Intrinsic.Control.If(V.Local.sColumns(V.Local.iCnt).Left01,=,"^")
+				'Command column (functional button/checkbox/something)
+				'for me, in this project, a prefix of ^ is a button
+				'These are injected from the SQL Query (just literal columns)
+				'Name of column starts with ^ in this case, value returned is just the caption of the button
+				'SELECT 'Edit' AS '^Edit', 'Delete' AS '^Delete' From Table
+				
+				'Caption Formatting...  but I turned the captions off for this column type
+				'F.Intrinsic.String.Mid(V.Local.sColumns(V.Local.iCnt),2,V.Local.sColumnName)
+				'F.Intrinsic.String.Replace(V.Local.sColumnName,"_"," ",V.Local.sColumnName)
+				Gui.[V.Args.FRM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sColumns(V.Local.iCnt),"VisibleIndex",V.Local.iCnt)
+				Gui.[V.Args.FRM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sColumns(V.Local.iCnt),"HeaderHAlignment","Center")
+				Gui.[V.Args.FRM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sColumns(V.Local.iCnt),"CellHAlignment","Center")
+				Gui.[V.Args.FRM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sColumns(V.Local.iCnt),"CellBackColor","DarkGray")
+				Gui.[V.Args.FRM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sColumns(V.Local.iCnt),"MinWidth","45")
+				Gui.[V.Args.FRM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sColumns(V.Local.iCnt),"ShowCaption",False)
+				Gui.[V.Args.FRM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sColumns(V.Local.iCnt),"Fixed","Left")
+				Gui.[V.Args.FRM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sColumns(V.Local.iCnt),"AllowSort",False)
+				Gui.[V.Args.FRM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sColumns(V.Local.iCnt),"AllowFilter",False)
+				
+			F.Intrinsic.Control.Else
+				'"standard" data column (not a button, etc)
+				
+				'Caption Formatting...
+				V.Local.sColumnName.Set(V.Local.sColumns(V.Local.iCnt))
+				F.Intrinsic.String.Replace(V.Local.sColumnName,"_"," ",V.Local.sColumnName)
+				
+				'Other Properties
+				Gui.[V.Args.FRM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sColumns(V.Local.iCnt),"VisibleIndex",V.Local.iCnt)
+				Gui.[V.Args.FRM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sColumns(V.Local.iCnt),"HeaderHAlignment","Left")
+				Gui.[V.Args.FRM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sColumns(V.Local.iCnt),"CellHAlignment","Left")
+				Gui.[V.Args.FRM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sColumns(V.Local.iCnt),"Caption",V.Local.sColumnName.PCase)
+			F.Intrinsic.Control.EndIf
+			
+		v.Local.bRet.Declare(String)	
+		'If this is a date column, format the date and right align
+		F.Intrinsic.String.IsInString(V.Local.sColumns(V.Local.iCnt),"Date",True,V.Local.bRet)
+		F.Intrinsic.Control.If(V.Local.bRet)
+			Gui.[V.Args.FRM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sColumns(V.Local.iCnt),"DisplayCustomDatetime","d")
+			Gui.[V.Args.FRM].[V.Args.GSGC].SetColumnProperty(V.Args.GV,V.Local.sColumns(V.Local.iCnt),"CellHAlignment","Far")
+		F.Intrinsic.Control.EndIf
+			
+		F.Intrinsic.Control.Next(V.Local.iCnt)
+		
+		Gui.[V.Args.FRM].[V.Args.GSGC].ResumeLayout()
+		Gui.[V.Args.FRM].[V.Args.GSGC].MainView(V.Args.GV)
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.Control.CallSub(Catching,"Sub",V.Ambient.CurrentSubroutine,"ErrorNo",V.Ambient.ErrorNumber,"ErrorDesc",V.Ambient.ErrorDescription) 
+	F.Intrinsic.Control.EndTry
+Program.Sub.LoadGV.End
+
+#End Region 'Generalized_Template_Functionality
+
+#Region "Project_Specific_Functionality"
+
+Program.Sub.Main.Start
+'by Josh Withrow
+'If something breaks, contact Sisco.
+
+Function.Intrinsic.UI.UsePixels ' Allows you to use Pixels instead of Twips throughout
+V.Local.sArt.Declare
+
+'*************************************************************************************************
+'************* Start Dashboard Template Stuff
+
+'Set Gss Logo
+'This is only applicable if a baseform is being used with the big ol' GSS logo front and center.
+F.Intrinsic.String.Build("{0}\GAB_GSS_Logo_Green_Dash.png",V.Caller.GasDir,V.Local.sArt)
+Gui.frmMain.picGSSLogo.Picture(V.Local.sArt)
+
+'Set Application Icons for all forms...
+'See that pretty GSS icon in the upper left corner of your screen in the title bar?  That's what should be there...  not rainbow squares.
+'If this is only applied to one form, only supply the form name, no delimiters.
+F.Intrinsic.Control.CallSub(SetApplicationIcon,"sForms","frmMain")
+'F.Intrinsic.Control.CallSub(SetApplicationIcon,"sForms","frmMain*!*frmShaker*!*frmWindMachine*!*frmWindMachine_Extra*!*frmDeleteConfirm")
+
+'Set list of controls (grids) that should have their preferences saved.  You know, so they grids load the same way the user left them.
+'FORMNAME*!*CONTROLNAME*!*GRIDVIEWNAME#$#form*!*gsgridcontrol*!*gridview#$#etc*!*etc*!*etc
+'Wash/rinse/repeat for each gridview that you want to store.
+'If there is only one gridview to maintain, only supply the single reference.
+V.Global.sGridViews.Set("frmMain*!*GsGCData*!*gvData")
+'V.Global.sGridViews.Set("frmMain*!*GsGCWindMachines*!*gvWindMachines#$#frmMain*!*GsGCShakers*!*gvShakers")
+
+'Set standard context menus for each grid.
+'sGridControls: FORMNAME*!*GSGRIDCONTROLNAME*!*CONTEXTMENUNAME#$# etc etc
+'	If only a single gridview, only provide a single list of controls.  eg, "frmMain*!*GsGCShakers*!*CTXShakers"
+'sContextMenuItems: ITEMNAME *!* ITEMCAPTION *!* EVENTHANDLER #$# etc etc
+'	If only a single context menu item, only provide a single list of controls. eg, "Refresh*!*Refresh*!*cmdRefresh_Click"
+F.Intrinsic.Control.CallSub(SetContextMenus,"sGridControls","frmMain*!*GsGCData*!*CTXMENU","sContextMenuItems","Refresh*!*Refresh*!*cmdRefresh_Click#$#Export*!*Export*!*ExportGrids#$#ResetColumns*!*Reset Columns*!*ResetGridColumns")
+'F.Intrinsic.Control.CallSub(SetContextMenus,"sGridControls","frmMain*!*GsGCShakers*!*CTXShakers#$#frmMain*!*GsGCWindMachines*!*CTXWindMachines","sContextMenuItems","AddNew*!*Add New*!*cmdAddNew_Click#$#Refresh*!*Refresh*!*cmdRefresh_Click#$#Export*!*Export*!*ExportGrids#$#ResetColumns*!*Reset Columns*!*ResetGridColumns")
+
+'Set Anchors
+'For the primary control layout items, anchor them to an area of the screen and then resize is automagic.
+'0 - None
+'1 - Top
+'2 - Bottom
+'4 - Left
+'8 - Right
+Gui.frmMain.picGSSLogo.Anchor(1)
+Gui.frmMain.tabTabs.Anchor(15)
+
+'Set ARC ID
+'Grabs the ARCID from the filename for use with saving/restoring grid preferences.  So make sure you stick with the file naming convention!
+'Typical file naming convention: DDD_IIII_Description.g2u
+'DDD=Department (GCG, ATG, GAB, etc.)
+'IIII=Reserved ARC ID (5849, 1234, whatever)
+'Description=Short Description of Project
+'Example: GCG_5849_UltimateDashboard.g2u
+F.Intrinsic.Control.CallSub(SetARCID)
+
+'************* End Dashboard Template Stuff
+'*************************************************************************************************
+
+'Everything beyond this point isn't tied to the "template", but is just regular project programming.
+
+'Open DB Connection
+F.ODBC.Connection!con.OpenCompanyConnection(500)
+
+F.Intrinsic.Control.CallSub(CheckDatabase)
+Gui.frmMain.tabTabs.SetTab(0)
+Gui.frmMain..Show
+F.Intrinsic.Control.BlockEvents
+v.Global.sSQL.Set("select A.PART, A.LOCATION, B.DESCRIPTION, C.TEXT AS EXTRA_DESCRIPTION, B.PRODUCT_LINE, B.CODE_SORT, B.NAME_VENDOR, A.LOT, A.BIN, A.HEAT, A.SERIAL_NUMBER, A.QUANTITY, A.UNIT_COST AS LOT_COST, CAST(D.COST AS DECIMAL(10,2)) AS AVE_COST, CAST((A.QUANTITY*D.COST) AS DECIMAL(10,2)) AS EXT_AVE_COST, A.DATE_LAST_REC, A.DATE_EXPIRATION, CASE WHEN A.DATE_EXPIRATION = '1900-1-1' THEN 0 ELSE A.DATE_EXPIRATION-CURRENT_DATE() END AS SHELF_LIFE_REMAINING, A.ALLOCATED from V_ITEM_MASTER A LEFT OUTER JOIN V_INVENTORY_ALL B ON A.PART = B.PART AND A.LOCATION = B.LOCATION LEFT OUTER JOIN V_INV_EXTRA_TEXT C ON A.PART=C.PART LEFT OUTER JOIN V_INVENTORY_COST D ON A.PART = D.PART AND A.LOCATION = D.LOCN")
+'Get data and load into grid(s)
+'                                                                           Name of form where GridControl lives                     Name of Gridview (usually just the same name as GridControl or DataTable, but with gv prefix)
+'                                                                           |                                                        |
+'                                                      Name of DataTable    |                             Name of GridControl to load data into      Basis (SQL query) to load into the grid
+'                                                      \/                   \/                            \/                         \/              \/                
+'F.Intrinsic.Control.CallSub(LoadData,"sDataTableName","dtData","sFormName","frmMain","sGridControlName","GsGCData","sGridViewName","gvData","sSQL","select PART, LOCATION, PRODUCT_LINE, DESCRIPTION from V_INVENTORY_ALL order by PART, LOCATION")
+Gui.frmMain.lblStatus.Visible(True)
+F.Intrinsic.Control.CallSub(LoadData, "sDataTableName","dtData","sFormName","frmMain","sGridControlName","GsGCData","sGridViewName","gvData","sSQL",v.Global.sSQL)
+Gui.frmMain.lblStatus.Visible(False)
+
+F.Intrinsic.Control.UnBlockEvents
+
+'load grid preferences
+F.Intrinsic.Control.CallSub(Deserialize)
+Gui.frmMain.lblStatus.Visible(False)
+
+Program.Sub.Main.End
+
+Program.Sub.frmMain_UnLoad.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+		
+		F.Intrinsic.Control.If(V.Global.bLoadData)
+			F.Intrinsic.Control.CallSub(Serialize)
+		F.Intrinsic.Control.EndIf
+		F.ODBC.Connection!con.Close
+		F.Intrinsic.Control.End
+		
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.Control.CallSub(Catching,"Sub",V.Ambient.CurrentSubroutine,"ErrorNo",V.Ambient.ErrorNumber,"ErrorDesc",V.Ambient.ErrorDescription) 
+	F.Intrinsic.Control.EndTry
+Program.Sub.frmMain_UnLoad.End
+
+Program.Sub.cmdRefresh_Click.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+		
+		F.Intrinsic.Control.If(V.Global.bLoadData)
+			F.Intrinsic.Control.CallSub(Serialize)
+		F.Intrinsic.Control.EndIf
+		
+		Gui.frmMain.lblStatus.Visible(True)
+		F.Intrinsic.Control.CallSub(LoadData,"sDataTableName","dtData","sFormName","frmMain","sGridControlName","GsGCData","sGridViewName","gvData","sSQL",v.Global.sSQL)
+		Gui.frmMain.lblStatus.Visible(False)
+		F.Intrinsic.Control.CallSub(Deserialize)
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.Control.CallSub(Catching,"Sub",V.Ambient.CurrentSubroutine,"ErrorNo",V.Ambient.ErrorNumber,"ErrorDesc",V.Ambient.ErrorDescription) 
+	F.Intrinsic.Control.EndTry
+Program.Sub.cmdRefresh_Click.End
+
+Program.Sub.ResetGridColumns.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+		
+		V.Local.sSerialize.Declare
+		
+		F.Intrinsic.Control.SelectCase(V.Args.MenuName)
+			F.Intrinsic.Control.Case("CTXMENU")
+				F.Intrinsic.Control.CallSub(ResetGrid,"sGridViewName","GVData")
+				F.Intrinsic.Control.CallSub(cmdRefresh_Click)
+		F.Intrinsic.Control.EndSelect
+		
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.Control.CallSub(Catching,"Sub",V.Ambient.CurrentSubroutine,"ErrorNo",V.Ambient.ErrorNumber,"ErrorDesc",V.Ambient.ErrorDescription) 
+	F.Intrinsic.Control.EndTry
+Program.Sub.ResetGridColumns.End
+
+Program.Sub.ExportGrids.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+		F.Intrinsic.Control.SelectCase(V.Args.MenuName)
+			F.Intrinsic.Control.Case("CTXMENU")
+				F.Intrinsic.Control.CallSub(ExportGrid,"sGridControls","frmMain*!*GsGCData")
+				
+				'You could export multiple grids in one fell swoop like this...
+				'F.Intrinsic.Control.CallSub(ExportGrid,"sGridControls","frmOne*!*GsGCOne#$#frmOne*!*GsGCTwo#$#etc")
+				
+		'	F.Intrinsic.Control.Case("CTXOther")
+		'		F.Intrinsic.Control.CallSub(ExportGrid,"sGridControls","frmMain*!*GsGCData2")
+		F.Intrinsic.Control.EndSelect
+	
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.Control.CallSub(Catching,"Sub",V.Ambient.CurrentSubroutine,"ErrorNo",V.Ambient.ErrorNumber,"ErrorDesc",V.Ambient.ErrorDescription) 
+	F.Intrinsic.Control.EndTry
+Program.Sub.ExportGrids.End
+
+Program.Sub.CheckDatabase.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+	
+		'Add logic to check for auxiliary table existence.  Create tables if they don't exist.
+		'V.Local.bTableExists.Declare
+		
+		'F.ODBC.Connection!con.TableExists("YourTableName",V.Local.bTableExists)
+		
+		'F.Intrinsic.Control.If(V.Local.bTableExists,=,False)
+		'	F.ODBC.Connection!con.Execute("create table TABLENAME etc...")
+		'F.Intrinsic.Control.EndIf
+		
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.Control.CallSub(Catching,"Sub",V.Ambient.CurrentSubroutine,"ErrorNo",V.Ambient.ErrorNumber,"ErrorDesc",V.Ambient.ErrorDescription) 
+	F.Intrinsic.Control.EndTry
+Program.Sub.CheckDatabase.End
+
+Program.Sub.Comments.Start
+${$5$}$3.0.0.0$}$1
+${$6$}$bstevens$}$20220202122831112$}$3Pg7+K2MGztoXyjxMVZqWaM5g3GOUsSNrM4TCkZv+Mr+HngLbKHG3CfY9hKWEaRSby4ZLd4cFxFe+TDakK91lw==
+Program.Sub.Comments.End
+
+#End Region 'Project_Specific_Functionality
